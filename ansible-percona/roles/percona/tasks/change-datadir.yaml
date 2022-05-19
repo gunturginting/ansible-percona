@@ -26,7 +26,7 @@
     group: mysql
     uid: 1040
 
-- name: change owner and group directory
+- name: change owner and group newdatadir
   shell: "{{ item }}"
   args:
     executable: /bin/bash
