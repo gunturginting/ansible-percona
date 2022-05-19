@@ -1,0 +1,4 @@
+- name: start mysql
+  service:
+    name: "{{ xtradb_service }}"
+    state: started

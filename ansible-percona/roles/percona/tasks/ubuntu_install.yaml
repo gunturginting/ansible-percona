@@ -1,0 +1,62 @@
+- name: load OS vars
+  include_vars:
+    file: "./vars/ubuntu.yaml"
+    name: os
+  
+- name: install apt-transport-https
+  apt:
+    name: apt-transport-https
+    state: present
+  environment:
+    http_proxy: "{{ proxy.http_proxy }}"
+    https_proxy: "{{ proxy.https_proxy }}"
+    no_proxy: "{{ proxy.no_proxy }}"
+
+- name: Install requirements
+  apt:
+    state: present
+    pkg: "{{ os.requirements }}"
+    update_cache: yes
+  environment:
+    http_proxy: "{{ proxy.http_proxy }}"
+    https_proxy: "{{ proxy.https_proxy }}"
+    no_proxy: "{{ proxy.no_proxy }}"
+
+- name: Install percona release
+  apt:
+    deb: "{{ os.repository.url }}" 
+    state: present
+  environment:
+    http_proxy: "{{ proxy.http_proxy }}"
+    https_proxy: "{{ proxy.https_proxy }}"
+    no_proxy: "{{ proxy.no_proxy }}"
+
+- name: setup percona release to pxc"{{ percona.xtradb_version }}"
+  command: "percona-release setup pxc{{ percona.xtradb_version }}"
+  environment:
+    http_proxy: "{{ proxy.http_proxy }}"
+    https_proxy: "{{ proxy.https_proxy }}"
+    no_proxy: "{{ proxy.no_proxy }}"
+
+- name: install percona-xtradb-full
+  apt:
+    name: percona-xtradb-cluster-full-{{ percona.xtradb_version }}
+    state: present
+    update_cache: yes
+  environment:
+    http_proxy: "{{ proxy.http_proxy }}"
+    https_proxy: "{{ proxy.https_proxy }}"
+    no_proxy: "{{ proxy.no_proxy }}"
+  notify:
+    - start mysql
+
+- name: mark if installed
+  file:
+    path:  "{{ os.xtradb_confdir }}/{{ percona.xtradb_preflight_lock.installed }}"
+    owner: root
+    group: root
+    mode: '0600'
+    state: touch
+
+
+  

@@ -1,0 +1,68 @@
+- name: load OS vars
+  include_vars:
+    file: "./vars/ubuntu.yaml"
+    name: os
+
+- name: Set fact if OS Family is Debian based
+  set_fact:
+    is_debian: true
+    is_redhat: false
+  when: ansible_os_family == "Debian" or ansible_os_family == "Ubuntu"
+
+- name: Set fact if OS Family is RedHat based
+  set_fact:
+    is_debian: false
+    is_redhat: true
+  when: ansible_os_family == "RedHat" or ansible_os_family == "Centos"
+
+- name: Stop ansible when OS Family not supported
+  meta: end_play
+  when: not is_debian and not is_redhat
+
+
+- name: Check if percona xtradb cluster is installed
+  stat:
+    path: "{{ os.xtradb_confdir }}/{{ percona.xtradb_preflight_lock.installed }}"
+  register: installed_result
+
+- name: Check if root percona xtradb cluster is changed
+  stat:
+    path: "{{ os.xtradb_confdir }}/{{ percona.xtradb_preflight_lock.password_changed }}"
+  register: password_changed_result
+
+- name: Check if root percona xtradb cluster is configured
+  stat:
+    path: "{{ os.xtradb_confdir }}/{{ percona.xtradb_preflight_lock.configured }}"
+  register: configured_result
+
+
+- name: Set fact if installed
+  set_fact:
+    is_installed: true
+  when: installed_result.stat.exists
+    
+- name: set fact if not installed
+  set_fact:
+    is_installed: false
+  when: not installed_result.stat.exists
+
+
+- name: Set fact if root password changed
+  set_fact:
+    is_password_changed: true
+  when: password_changed_result.stat.exists
+    
+- name: set fact if root password not changed
+  set_fact:
+    is_password_changed: false
+  when: not password_changed_result.stat.exists
+
+- name: Set fact if configured
+  set_fact:
+    is_configured: true
+  when: configured_result.stat.exists
+    
+- name: set fact if not configured
+  set_fact:
+    is_configured: false
+  when: not configured_result.stat.exists

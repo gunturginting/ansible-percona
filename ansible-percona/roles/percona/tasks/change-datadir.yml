@@ -1,0 +1,82 @@
+# tasks file for MySQL
+- name: Check directory if exist
+  stat:
+    path: "{{ dbdatadir }}"
+  register: check_directory
+
+- name: Create a data directory if it does not exist
+  become: true      
+  file:
+    path: "{{ dbdatadir }}"
+    state: directory
+    # owner: mysql
+    # group: mysql
+    # mode: 0755
+  when: not check_directory.stat.exists
+
+- name: Stop mysql Service
+  service:
+    name: mysql
+    state: stopped
+    enabled: yes
+
+- name: Copy datadir location to new path
+  copy:
+    src: /var/lib/mysql/
+    dest: "{{ dbdatadir }}/"
+    # # owner: mysql
+    # # group: mysql
+    # mode: 0640
+    remote_src: true
+
+- name: chmod
+  shell: "{{ item }}"
+  args:
+    executable: /bin/bash
+  with_items:
+   - chown -R mysql:mysql "{{ dbdatadir }}"
+   - chown 750 "{{ dbdatadir }}"
+   - chown --reference=/var/lib/mysql "{{ dbdatadir }}"
+   - chmod --reference=/var/lib/mysql "{{ dbdatadir }}"
+
+
+- name: Inserting a line after a pattern in Ansible example 
+  lineinfile:
+    path: /etc/apparmor.d/tunables/alias
+    line: alias /var/lib/mysql/ -> {{ dbdatadir }},
+    insertafter: alias*
+    state: present
+    owner: root
+    group: root
+    mode: 0644
+
+
+- name: Change datadir location in mysqld.cnf
+  lineinfile:
+    path: /etc/mysql/mysql.conf.d/mysqld.cnf
+    regexp: '^datadir'
+    line: 'datadir = {{ dbdatadir }}'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Check mysql directory if exist
+  stat:
+    path: /var/lib/mysql.bak
+  check_mode: yes
+  register: check_directory
+
+- name: Rename /var/lib/mysql
+  command: mv /var/lib/mysql /var/lib/mysql.bak
+  when: not check_directory.stat.exists
+  notify:
+   - Restart mysql
+
+
+- name: Reload appArmor
+  service:
+    name: apparmor
+    state: reloaded
+    enabled: yes
+    force: true
+  ignore_errors: true

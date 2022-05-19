@@ -1,0 +1,28 @@
+- name: install xinetd
+  apt:
+    name: xinetd
+    state: present
+  environment:
+    http_proxy: "{{ proxy.http_proxy }}"
+    https_proxy: "{{ proxy.https_proxy }}"
+    no_proxy: "{{ proxy.no_proxy }}"
+
+- name: Create xinetd user
+  mysql_user:
+    login_user: "root"
+    login_password: "{{ percona.xtradb_root.password }}"
+    user: "{{ xinetd.auth.user }}"
+    password: "{{ xinetd.auth.password }}"
+    priv: "*.*:process"
+
+- name: Copy clustercheck
+  template:
+    src: clustercheck
+    dest: "/usr/bin/clustercheck"
+
+- name: Restart xinetd service
+  service:
+    name: "xinetd"
+    state: restarted
+
+

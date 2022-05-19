@@ -1,0 +1,71 @@
+- name: Create SST user
+  mysql_user:
+    login_user: "root"
+    login_password: "{{ percona.xtradb_root.password }}"
+    user: "{{ percona.wsrep.sst.username }}"
+    password: "{{ percona.wsrep.sst.password }}"
+    priv: "*.*:grant,reload,lock tables,process,replication client"
+  
+- name: load OS vars from Ubuntu
+  include_vars:
+    file: "./vars/ubuntu.yaml"
+    name: os
+  when: is_debian
+
+- name: Stop mysql service
+  service:
+    name: "{{ percona.xtradb_service }}"
+    state: stopped
+  
+- name: Copy mysqld.conf
+  template:
+    src: mysqld.cnf
+    dest: "{{ os.xtradb_confdir }}/mysqld.cnf"
+
+
+- name: Copy wsrep.conf
+  template:
+    src: wsrep.cnf
+    dest: "{{ os.xtradb_confdir }}/{{ os.xtradb_config_file }}"
+
+- name: Check if root percona xtradb cluster is changed
+  stat:
+    path: "{{ os.xtradb_confdir }}/{{ percona.xtradb_preflight_lock.bootstraped }}"
+  register: is_bootstraped
+
+- name: Boostraping
+  command: "/etc/init.d/mysql bootstrap-pxc"
+  when: inventory_hostname != hostvars[groups['percona'][0]]['ansible_hostname']
+  register: bootstrap
+  when: not is_bootstraped.stat.exists
+
+- name: Mark if bootstraped
+  file:
+    path:  "{{ os.xtradb_confdir }}/{{ percona.xtradb_preflight_lock.bootstraped }}"
+    owner: root
+    group: root
+    mode: '0600'
+    state: touch
+  when: 
+  - not is_bootstraped.stat.exists
+  - bootstrap.stderr == "" and not bootstrap.stderr
+
+- name: running mysql service other node
+  service:
+    name: "{{ percona.xtradb_service }}"
+    state: started
+  when: inventory_hostname != hostvars[groups['percona'][0]]['ansible_hostname']
+
+- name: Mark if configured
+  file:
+    path:  "{{ os.xtradb_confdir }}/{{ percona.xtradb_preflight_lock.configured }}"
+    owner: root
+    group: root
+    mode: '0600'
+    state: touch
+  
+
+
+
+
+

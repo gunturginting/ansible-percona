@@ -1,0 +1,43 @@
+- name: Deploy percona xtradb cluster on Ubuntu
+  hosts: percona
+  vars: 
+    proxy:
+      http_proxy: "{{ http_proxy }}"
+      https_proxy: "{{ http_proxy }}"
+      no_proxy: "{{ no_proxy }}"
+    percona:
+      xtradb_version: "57"
+      xtradb_service: mysql
+      xtradb_datadir: /var/lib/mysql
+      xtradb_partition: /dev/sda1
+      cluster_name: "percona-01"
+      wsrep:
+        binlog_format: ROW
+        default_storage_engine: InnoDB
+        wsrep_slave_threads: 8
+        innodb_autoinc_lock_mode: 2
+        pxc_strict_mode: DISABLED
+        wsrep_auto_increment_control: false
+        sst:
+          user: sstuser
+          password: sstpassword
+      xtradb_preflight_lock:
+        configured: "{{ xtradb_confdir }}/_configured"
+        secured: "{{ xtradb_confdir }}/_secured"
+        password_changed: "{{ xtradb_confdir }}/_password_changed"
+      xtradb_root:
+        username: root
+        password: root
+      mysql_options: |
+        log_output=file
+        slow_query_log=ON
+        long_query_time=0
+        max_connections=500
+    xinetd:
+      auth:
+        user: lakilakibermain
+        password: buayakecil
+      resource_threshold: 75.0
+  roles:
+  - {role: percona}
+  - {role: xinetd}

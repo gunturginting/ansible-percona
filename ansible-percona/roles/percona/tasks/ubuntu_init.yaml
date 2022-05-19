@@ -1,0 +1,6 @@
+- name: install on Debian Family
+  include: ubuntu_install.yaml
+  when: is_debian and not is_installed
+- name: secured
+  include: ubuntu_secured.yaml
+  when: not is_password_changed and is_debian and is_installed
