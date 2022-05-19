@@ -11,6 +11,8 @@
       xtradb_datadir: /var/lib/mysql
       xtradb_partition: /dev/sda1
       cluster_name: "percona-01"
+      dbservicename: percona
+      dbdatadir: /mnt/{{ dbservicename }}/mysql/data
       wsrep:
         binlog_format: ROW
         default_storage_engine: InnoDB

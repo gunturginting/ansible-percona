@@ -1,0 +1,67 @@
+---
+# tasks file for Percona
+
+- name: create directory
+  become: true
+  file:
+    path: "{{ dbdatadir }}"
+    state: directory
+
+- name: stop service mysql
+  service:
+    name: mysql
+    state: stopped
+    enabled: yes
+
+- name: copy existing datadir to new datadir
+  copy:
+    src: /var/lib/mysql
+    dest: {{ dbdatadir }}
+    remote_src: yes
+
+- name: create user mysql
+  become: true
+  user: 
+    name: mysql
+    group: mysql
+    uid: 1040
+
+- name: change owner and group directory
+  shell: "{{ item }}"
+  args:
+    executable: /bin/bash
+  with_items:
+  - chown -R mysql:mysql "{{ dbdatadir }}"
+  - chmod 750 "{{ dbdatadir }}"
+
+- name: change datadir in mysqld.cnf
+  lineinfile:
+    path: "{{ os.xtradb_confdir }}/mysqld.cnf"
+    regexp: '^datadir'
+    line: 'datadir = {{ dbdatadir }}'
+    owner: root
+    group: root
+    mode: 0644
+
+- name: change datadir in apparmor
+  lineinfile:
+    path: /etc/apparmor.d/tunables/alias
+    insertafter: alias*
+    line: alias /var/lib/mysql/ -> {{ dbdatadir }},
+    state: present
+    owner: root
+    group: root
+    mode: 0644
+
+- name: restart apparmor
+  service:
+    name: apparmor
+    state: reloaded
+    enabled: yes
+    force: true
+
+- name: start percona mysql
+  service:
+    name: mysql
+    state: started
+    enabled: yes
