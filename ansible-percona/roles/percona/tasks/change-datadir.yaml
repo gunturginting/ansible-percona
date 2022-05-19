@@ -39,6 +39,7 @@
     path: "{{ os.xtradb_confdir }}/mysqld.cnf"
     regexp: '^datadir'
     line: 'datadir = {{ dbdatadir }}'
+    insertbefore: 'tmpdir*'
     owner: root
     group: root
     mode: 0644
@@ -46,8 +47,8 @@
 - name: change datadir in apparmor
   lineinfile:
     path: /etc/apparmor.d/tunables/alias
-    insertafter: alias*
-    line: alias /var/lib/mysql/ -> {{ dbdatadir }},
+    insertafter: 'alias*'
+    line: 'alias /var/lib/mysql/ -> {{ dbdatadir }},'
     state: present
     owner: root
     group: root
