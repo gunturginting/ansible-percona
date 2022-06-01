@@ -1,14 +1,16 @@
 requirements:
-  - wget 
+  - wget
   - gnupg2
   - lsb-release
   - curl
-  - python3-mysql
+  - python3-mysqldb
 repository:
-  url: https://repo.percona.com/apt/percona-release_latest.generic_all.deb
-xtradb_wsrep_provider: /usr/lib/galera3/libgalera_smm.so
-xtradb_confdir: /etc/mysql/percona-xtradb-cluster.conf.d
+  url: "https://repo.percona.com/apt/percona-release_latest.generic_all.deb"
+xtradb_wsrep_provider: "/usr/lib/galera3/libgalera_smm.so"
+xtradb_confdir: "/etc/mysql/percona-xtradb-cluster.conf.d"
 xtradb_config_file: "wsrep.cnf"
 xtradb_packages:
   - "percona-xtradb-cluster-full-{{ percona.xtradb_version }}"
-  - python3-mysqldb
+  - "python3-mysqldb"
+dbservicename: "{{ cluster_name }}"
+dbdatadir: "/mnt/{{ dbservicename }}/mysql/data"

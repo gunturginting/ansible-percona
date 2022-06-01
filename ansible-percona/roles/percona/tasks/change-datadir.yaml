@@ -54,6 +54,18 @@
     group: root
     mode: 0644
 
+- name: check mysql directory if exist
+  stat:
+    path: /var/lib/mysql.bak
+  check_mode: yes
+  register: check_directory
+
+- name: rename directory /var/lib/mysql
+  command: mv /var/lib/mysql /var/lib/mysql.bak
+  when: not check_directory.stat.exist
+  notify: 
+    - Restart mysql 
+    
 - name: restart apparmor
   service:
     name: apparmor

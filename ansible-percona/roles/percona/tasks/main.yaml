@@ -4,3 +4,4 @@
 - include: clustering.yaml
   when: is_password_changed and is_installed and not is_configured
 - include: change-datadir.yaml
+  when: is_password_changed and is_installed and not is_configured
