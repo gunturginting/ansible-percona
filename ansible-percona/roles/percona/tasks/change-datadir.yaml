@@ -1,10 +1,14 @@
 ---
 # tasks file for Percona
+- name: load os vars
+  include_vars:
+    file: "./vars/ubuntu.yaml"
+    name: os
 
 - name: create directory
   become: true
   file:
-    path: "{{ dbdatadir }}"
+    path: "{{ os.dbdatadir }}"
     state: directory
 
 - name: stop service mysql
@@ -16,7 +20,7 @@
 - name: copy existing datadir to new datadir
   copy:
     src: /var/lib/mysql
-    dest: {{ dbdatadir }}
+    dest: "{{ os.dbdatadir }}"
     remote_src: yes
 
 - name: create user mysql
@@ -31,14 +35,14 @@
   args:
     executable: /bin/bash
   with_items:
-  - chown -R mysql:mysql "{{ dbdatadir }}"
-  - chmod 750 "{{ dbdatadir }}"
+  - chown -R mysql:mysql "{{ os.dbdatadir }}"
+  - chmod 750 "{{ os.dbdatadir }}"
 
 - name: change datadir in mysqld.cnf
   lineinfile:
     path: "{{ os.xtradb_confdir }}/mysqld.cnf"
     regexp: '^datadir'
-    line: 'datadir = {{ dbdatadir }}'
+    line: 'datadir = {{ os.dbdatadir }}'
     insertbefore: 'tmpdir*'
     owner: root
     group: root
@@ -48,7 +52,7 @@
   lineinfile:
     path: /etc/apparmor.d/tunables/alias
     insertafter: 'alias*'
-    line: 'alias /var/lib/mysql/ -> {{ dbdatadir }},'
+    line: 'alias /var/lib/mysql/ -> {{ os.dbdatadir }},'
     state: present
     owner: root
     group: root
@@ -65,7 +69,7 @@
   when: not check_directory.stat.exist
   notify: 
     - Restart mysql 
-    
+
 - name: restart apparmor
   service:
     name: apparmor
