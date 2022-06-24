@@ -55,7 +55,7 @@
   lineinfile:
     path: /etc/apparmor.d/tunables/alias
     insertafter: 'alias*'
-    line: 'alias /var/lib/mysql/ -> {{ os.xtradb_datadir }},'
+    line: 'alias /var/lib/mysql/ -> {{ os.xtradb_datadir }}/mysql/,'
     state: present
     owner: root
     group: root
