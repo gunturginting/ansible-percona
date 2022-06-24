@@ -12,9 +12,5 @@ xtradb_config_file: "wsrep.cnf"
 xtradb_packages:
   - "percona-xtradb-cluster-full-{{ percona.xtradb_version }}"
   - "python3-mysqldb"
-<<<<<<< HEAD
 xtradb_datadir: "/mnt/{{ percona.dbservicename }}/mysql/data"
-=======
-dbservicename: "{{ percona.cluster_name }}"
-dbdatadir: "/mnt/{{ dbservicename }}/mysql/data"
->>>>>>> 844e592f36f18a2b96a2cb74578e02c34fb213a7
+dbdatadir: "/mnt/{{ dbservicename }}/"
