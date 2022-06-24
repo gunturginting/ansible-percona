@@ -1,5 +1,7 @@
 - include: preflight.yaml
 - include: ubuntu_init.yaml
   when: is_debian
-- include: clustering.yaml
-  when: is_password_changed and is_installed and not is_configured
+  #- include: change-datadir.yaml
+  #when: is_password_changed and is_installed and not is_configured
+  #- include: clustering.yaml
+  #when: is_password_changed and is_installed and not is_configured

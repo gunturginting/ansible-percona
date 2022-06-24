@@ -6,11 +6,11 @@
     password: "{{ percona.wsrep.sst.password }}"
     priv: "*.*:grant,reload,lock tables,process,replication client"
   
-- name: load OS vars from Ubuntu
-  include_vars:
-    file: "./vars/ubuntu.yaml"
-    name: os
-  when: is_debian
+# - name: load OS vars from Ubuntu
+#  include_vars:
+#    file: "./vars/ubuntu.yaml"
+#    name: os
+#  when: is_debian
 
 - name: Stop mysql service
   service:
@@ -21,7 +21,6 @@
   template:
     src: mysqld.cnf
     dest: "{{ os.xtradb_confdir }}/mysqld.cnf"
-
 
 - name: Copy wsrep.conf
   template:

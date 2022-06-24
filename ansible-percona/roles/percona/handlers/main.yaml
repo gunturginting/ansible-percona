@@ -1,4 +1,9 @@
 - name: start mysql
   service:
-    name: "{{ xtradb_service }}"
+    name: "{{ percona.xtradb_service }}"
     state: started
+
+- name: Restart mysql
+  service:
+    name: "{{ percona.xtradb_service }}"
+    state: restarted

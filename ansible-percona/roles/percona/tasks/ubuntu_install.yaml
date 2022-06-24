@@ -31,8 +31,8 @@
     https_proxy: "{{ proxy.https_proxy }}"
     no_proxy: "{{ proxy.no_proxy }}"
 
-- name: setup percona release to pxc"{{ percona.xtradb_version }}"
-  command: "percona-release setup pxc{{ percona.xtradb_version }}"
+- name: setup percona release to pxc{{ percona.xtradb_version }}
+  command: percona-release setup pxc{{ percona.xtradb_version }}
   environment:
     http_proxy: "{{ proxy.http_proxy }}"
     https_proxy: "{{ proxy.https_proxy }}"

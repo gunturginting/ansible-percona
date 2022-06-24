@@ -1,4 +1,7 @@
-
+- name: load OS vars
+  include_vars:
+    file: "./vars/ubuntu.yaml"
+    name: os
 
 - name: get mysql password
   shell: grep "temporary password" /var/log/mysqld.log | awk '{print $11}'

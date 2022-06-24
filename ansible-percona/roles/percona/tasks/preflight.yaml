@@ -19,7 +19,6 @@
   meta: end_play
   when: not is_debian and not is_redhat
 
-
 - name: Check if percona xtradb cluster is installed
   stat:
     path: "{{ os.xtradb_confdir }}/{{ percona.xtradb_preflight_lock.installed }}"
