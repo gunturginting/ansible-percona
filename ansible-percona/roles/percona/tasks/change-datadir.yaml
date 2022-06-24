@@ -18,7 +18,7 @@
     enabled: yes
 
 - name: copy existing datadir to new datadir
-  shell: rsync -avz /var/lib/mysql "{{ os.xtradb_datadir }}"
+  shell: rsync -avz /var/lib/mysql/ "{{ os.xtradb_datadir }}"
   args:
     executable: /bin/bash
   #copy:
