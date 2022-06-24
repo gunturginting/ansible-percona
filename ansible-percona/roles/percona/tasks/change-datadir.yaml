@@ -75,7 +75,9 @@
   register: check_directory
 
 - name: rename directory /var/lib/mysql
-  command: mv /var/lib/mysql /var/lib/mysql.bak
+  shell: mv /var/lib/mysql /var/lib/mysql.bak
+  args:
+    executable: /bin/bash
   when: not check_directory.stat.exist
   notify: 
     - Restart mysql 
