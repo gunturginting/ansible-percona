@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 - name: Deploy percona xtradb cluster on Ubuntu 1
   hosts: percona
   vars: 
+=======
+- name: Deploy percona xtradb cluster on Ubuntu
+  hosts: mastertest
+  vars:
+>>>>>>> 844e592f36f18a2b96a2cb74578e02c34fb213a7
     proxy:
       http_proxy: "{{ http_proxy | default('')}}"
       https_proxy: "{{ http_proxy | default('')}}"
