@@ -18,7 +18,7 @@
     enabled: yes
 
 - name: copy existing datadir to new datadir
-  shell: rsync -avz /var/lib/mysql/ "{{ os.xtradb_datadir }}"
+  shell: rsync -avz /var/lib/mysql "{{ os.xtradb_datadir }}"
   args:
     executable: /bin/bash
   #copy:
@@ -45,7 +45,7 @@
   lineinfile:
     path: "{{ os.xtradb_confdir }}/mysqld.cnf"
     regexp: '^datadir'
-    line: 'datadir = {{ os.xtradb_datadir }}'
+    line: 'datadir = {{ os.xtradb_datadir }}/mysql'
     insertbefore: 'tmpdir*'
     owner: root
     group: root
@@ -68,16 +68,16 @@
     enabled: yes
     force: true
 
-#- name: Check mysql directory if exist
-#  stat:
-#    path: /var/lib/mysql.bak
-#  check_mode: yes
-#  register: check_directory
+- name: Check mysql directory if exist
+  stat:
+    path: /var/lib/mysql.bak
+  check_mode: yes
+  register: check_directory
 
 - name: rename directory /var/lib/mysql
   shell: mv /var/lib/mysql /var/lib/mysql.bak
   args:
     executable: /bin/bash
-#  when: not check_directory.stat.exist
+  when: not check_directory.stat.exist
   notify: 
     - Restart mysql 
