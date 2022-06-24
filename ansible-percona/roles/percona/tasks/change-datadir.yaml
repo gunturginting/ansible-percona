@@ -1,8 +1,5 @@
 ---
-<<<<<<< HEAD
-=======
 # tasks file for Percona
->>>>>>> 844e592f36f18a2b96a2cb74578e02c34fb213a7
 - name: load os vars
   include_vars:
     file: "./vars/ubuntu.yaml"
@@ -11,11 +8,7 @@
 - name: create directory
   become: true
   file:
-<<<<<<< HEAD
     path: "{{ os.xtradb_datadir }}"
-=======
-    path: "{{ os.dbdatadir }}"
->>>>>>> 844e592f36f18a2b96a2cb74578e02c34fb213a7
     state: directory
 
 - name: stop service mysql
@@ -25,11 +18,13 @@
     enabled: yes
 
 - name: copy existing datadir to new datadir
-  copy:
-    src: /var/lib/mysql
-<<<<<<< HEAD
-    dest: "{{ os.xtradb_datadir }}"
-    remote_src: yes
+  shell: rsync -avz /var/lib/mysql "{{ os.xtradb_datadir }}"
+  args:
+    executable: /bin/bash
+  #copy:
+    #src: /var/lib/mysql
+    #dest: "{{ os.xtradb_datadir }}"
+    #remote_src: yes
 
     #- name: create user mysql
     #  become: true
@@ -37,40 +32,20 @@
     #name: mysql
     #group: mysql
     #uid: 1040
-=======
-    dest: "{{ os.dbdatadir }}"
-    remote_src: yes
 
-- name: create user mysql
-  become: true
-  user: 
-    name: mysql
-    group: mysql
-    uid: 1040
->>>>>>> 844e592f36f18a2b96a2cb74578e02c34fb213a7
-
-- name: change owner and group newdatadir
-  shell: "{{ item }}"
-  args:
-    executable: /bin/bash
-  with_items:
-<<<<<<< HEAD
-  - chown -R mysql:mysql "{{ os.xtradb_datadir }}"
-  - chmod 750 "{{ os.xtradb_datadir }}"
-=======
-  - chown -R mysql:mysql "{{ os.dbdatadir }}"
-  - chmod 750 "{{ os.dbdatadir }}"
->>>>>>> 844e592f36f18a2b96a2cb74578e02c34fb213a7
+#- name: change owner and group newdatadir
+#  shell: "{{ item }}"
+#  args:
+#    executable: /bin/bash
+#  with_items:
+#  - chown -R mysql:mysql "{{ os.xtradb_datadir }}"
+#  - chmod 750 "{{ os.xtradb_datadir }}"
 
 - name: change datadir in mysqld.cnf
   lineinfile:
     path: "{{ os.xtradb_confdir }}/mysqld.cnf"
     regexp: '^datadir'
-<<<<<<< HEAD
     line: 'datadir = {{ os.xtradb_datadir }}'
-=======
-    line: 'datadir = {{ os.dbdatadir }}'
->>>>>>> 844e592f36f18a2b96a2cb74578e02c34fb213a7
     insertbefore: 'tmpdir*'
     owner: root
     group: root
@@ -80,17 +55,12 @@
   lineinfile:
     path: /etc/apparmor.d/tunables/alias
     insertafter: 'alias*'
-<<<<<<< HEAD
     line: 'alias /var/lib/mysql/ -> {{ os.xtradb_datadir }},'
-=======
-    line: 'alias /var/lib/mysql/ -> {{ os.dbdatadir }},'
->>>>>>> 844e592f36f18a2b96a2cb74578e02c34fb213a7
     state: present
     owner: root
     group: root
     mode: 0644
 
-<<<<<<< HEAD
 - name: restart apparmor
   service:
     name: apparmor
@@ -99,41 +69,13 @@
     force: true
 
 - name: Check mysql directory if exist
-=======
-- name: check mysql directory if exist
->>>>>>> 844e592f36f18a2b96a2cb74578e02c34fb213a7
   stat:
     path: /var/lib/mysql.bak
   check_mode: yes
   register: check_directory
 
-<<<<<<< HEAD
-- name: Rename /var/lib/mysql
-  command: mv /var/lib/mysql /var/lib/mysql.bak
-  when: not check_directory.stat.exists
-  notify:
-   - Restart mysql  
-=======
 - name: rename directory /var/lib/mysql
   command: mv /var/lib/mysql /var/lib/mysql.bak
   when: not check_directory.stat.exist
   notify: 
     - Restart mysql 
-
-- name: restart apparmor
-  service:
-    name: apparmor
-    state: reloaded
-    enabled: yes
-    force: true
->>>>>>> 844e592f36f18a2b96a2cb74578e02c34fb213a7
-
-- name: start percona mysql
-  service:
-    name: mysql
-    state: started
-<<<<<<< HEAD
-    enabled: yes
-=======
-    enabled: yes
->>>>>>> 844e592f36f18a2b96a2cb74578e02c34fb213a7
