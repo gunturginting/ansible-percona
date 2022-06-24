@@ -68,16 +68,16 @@
     enabled: yes
     force: true
 
-- name: Check mysql directory if exist
-  stat:
-    path: /var/lib/mysql.bak
-  check_mode: yes
-  register: check_directory
+#- name: Check mysql directory if exist
+#  stat:
+#    path: /var/lib/mysql.bak
+#  check_mode: yes
+#  register: check_directory
 
 - name: rename directory /var/lib/mysql
   shell: mv /var/lib/mysql /var/lib/mysql.bak
   args:
     executable: /bin/bash
-  when: not check_directory.stat.exist
+#  when: not check_directory.stat.exist
   notify: 
     - Restart mysql 
